@@ -2,6 +2,8 @@ import { Box, Typography } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 import QuizForm from "./pages/QuizForm";
 import QuestionBanks from "./pages/QuestionBanks";
+import QuestionInterface from "./components/QuestionInterface";
+import Result from "./components/Result"
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
       <Routes>
         <Route path="/" element={<QuestionBanks />} />
         <Route path="/form" element={<QuizForm />} />
+        <Route path='/questions' element={<QuestionInterface />} />
+        <Route path="/result " element={<Result />} />
       </Routes>
     </>
   );
