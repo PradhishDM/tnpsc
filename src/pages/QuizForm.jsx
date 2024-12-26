@@ -86,6 +86,8 @@ const QuizForm = () => {
     whatsappNo: "",
     email: "",
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [isReady, setIsReady] = useState(false);
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -96,15 +98,60 @@ const QuizForm = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleValidation = (field, value) => {
+    switch (field) {
+      case "contactNo":
+      case "whatsappNo":
+        return /^\d{10}$/.test(value);
+      case "email":
+        return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+      default:
+        return value.trim() !== "";
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (touched[name]) {
+      const isValid = handleValidation(name, value);
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: !isValid }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prevTouched) => ({ ...prevTouched, [name]: true }));
+
+    const isValid = handleValidation(name, value);
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: !isValid }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate("/questions");
-    console.log("Form Data Submitted:", formData);
+
+    const newErrors = {};
+    let hasError = false;
+
+    Object.keys(formData).forEach((field) => {
+      const isValid = handleValidation(field, formData[field]);
+      newErrors[field] = !isValid;
+      if (!isValid) hasError = true;
+    });
+
+    setErrors(newErrors);
+    setTouched({
+      name: true,
+      contactNo: true,
+      whatsappNo: true,
+      email: true,
+    });
+
+    if (!hasError) {
+      navigate("/questions");
+      console.log("Form Data Submitted:", formData);
+    }
   };
 
   return (
@@ -142,13 +189,9 @@ const QuizForm = () => {
             </Fade>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
-                {Object.keys(formData).map((field, index) => (
+                {Object.keys(formData).map((field) => (
                   <Grid item xs={12} key={field}>
-                    <StyledTextFieldContainer
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 * (index + 1) }}
-                    >
+                    <StyledTextFieldContainer>
                       <StyledTextField
                         fullWidth
                         label={
@@ -161,13 +204,44 @@ const QuizForm = () => {
                         name={field}
                         value={formData[field]}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         variant="outlined"
+                        required
+                        helperText={
+                          errors[field]
+                            ? field === "email"
+                              ? "Enter a valid email address."
+                              : field.includes("No")
+                              ? "Enter a valid 10-digit number."
+                              : "This field is required."
+                            : ""
+                        }
+                        error={!!errors[field]}
                         type={
                           field.includes("No")
                             ? "tel"
                             : field === "email"
                             ? "email"
                             : "text"
+                        }
+                        inputProps={
+                          field.includes("No")
+                            ? {
+                                maxLength: 10,
+                                inputMode: "numeric",
+                                pattern: "\\d*",
+                              }
+                            : {}
+                        }
+                        onInput={
+                          field.includes("No")
+                            ? (e) => {
+                                e.target.value = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ""
+                                );
+                              }
+                            : undefined
                         }
                       />
                     </StyledTextFieldContainer>
