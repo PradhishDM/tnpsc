@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Radio,
@@ -14,24 +14,24 @@ import {
   DialogContent,
   DialogTitle,
   Snackbar,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import questionsData from '../questions.json';
-
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import questionsData from "../questions.json";
 
 const QuestionInterface = () => {
-  const [selectedAnswer, setSelectedAnswer] = useState('');
+  const [selectedAnswer, setSelectedAnswer] = useState("");
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
-  const [numbers] = useState(Array.from({ length: questionsData.questions.length }, (_, i) => i + 1));
+  const [numbers] = useState(
+    Array.from({ length: questionsData.questions.length }, (_, i) => i + 1)
+  );
   const [answers, setAnswers] = useState({});
   const questions = questionsData.questions;
-  const [score,setscore]=useState(0)
+  const [score, setscore] = useState(0);
   const navigate = useNavigate();
- 
-  
+
   const handleAnswerChange = (event) => {
     const selectedOption = event.target.value;
     setSelectedAnswer(selectedOption);
@@ -42,24 +42,28 @@ const QuestionInterface = () => {
     }));
 
     if (questions[currentQuestionIndex].id === selectedOption) {
-      console.log('Correct Answer');
+      console.log("Correct Answer");
     } else {
-      console.log('Incorrect Answer');
+      console.log("Incorrect Answer");
     }
   };
-  
+
   useEffect(() => {
-    setSelectedAnswer(answers[currentQuestionIndex] || '');
+    setSelectedAnswer(answers[currentQuestionIndex] || "");
   }, [currentQuestionIndex, answers]);
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex((prevIndex) => {
+        const newIndex = prevIndex + 1;
+        setSelectedNumber(newIndex + 1); // Update selected number to match the new question
+        return newIndex;
+      });
     }
 
-    if( questions[currentQuestionIndex].id === selectedAnswer){
+    if (questions[currentQuestionIndex].id === selectedAnswer) {
       setscore((prevScore) => prevScore + 1);
-     }
+    }
   };
 
   const handlePrevious = () => {
@@ -80,9 +84,11 @@ const QuestionInterface = () => {
   const handleConfirmSubmit = () => {
     setOpenConfirmation(false);
     setOpenSuccess(true);
-   
+
     setTimeout(() => {
-      navigate('/result', { state: { totalQuestions: questions.length, score } });
+      navigate("/result", {
+        state: { totalQuestions: questions.length, score },
+      });
     }, 1000);
   };
 
@@ -96,41 +102,49 @@ const QuestionInterface = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: "flex" }}>
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
+            display: "flex",
+            justifyContent: "space-between",
             gap: 0.5,
             p: 5,
-            marginLeft: { xs: '0', md: '90px' },
-            flexDirection: { xs: 'column', md: 'row' },
-            width: '100%',
+            marginLeft: { xs: "0", md: "90px" },
+            flexDirection: { xs: "column", md: "row" },
+            width: "100%",
           }}
         >
           <Box
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: "white",
               p: 3,
               borderRadius: 2,
               boxShadow: 8,
-              width: { xs: '100%', md: '25%' },
+              width: { xs: "100%", md: "25%" },
               mb: { xs: 3, md: 0 },
             }}
           >
-            <Grid container direction="row" spacing={3} justifyContent="center" alignItems="center">
+            <Grid
+              container
+              direction="row"
+              spacing={3}
+              justifyContent="center"
+              alignItems="center"
+            >
               {numbers.map((number) => (
                 <Grid item xs={3} key={number}>
                   <Button
                     variant="contained"
                     sx={{
-                      width: '60px',
-                      height: '60px',
-                      backgroundColor: selectedNumber === number ? '#f59e0b' : '#22c55e',
-                      borderRadius: '50%',
-                      marginBottom: '5px',
-                      '&:hover': {
-                        backgroundColor: selectedNumber === number ? '#f97316' : '#16a34a',
+                      width: "60px",
+                      height: "60px",
+                      backgroundColor:
+                        selectedNumber === number ? "#f59e0b" : "#22c55e",
+                      borderRadius: "50%",
+                      marginBottom: "5px",
+                      "&:hover": {
+                        backgroundColor:
+                          selectedNumber === number ? "#f97316" : "#16a34a",
                       },
                     }}
                     onClick={() => handleNumberClick(number)}
@@ -144,11 +158,11 @@ const QuestionInterface = () => {
 
           <Box
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: "white",
               p: 4,
               borderRadius: 2,
               boxShadow: 2,
-              width: { xs: '100%', md: '60%' },
+              width: { xs: "100%", md: "60%" },
             }}
           >
             <Typography variant="h6" gutterBottom>
@@ -172,7 +186,9 @@ const QuestionInterface = () => {
               </RadioGroup>
             </FormControl>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}
+            >
               <Button
                 variant="outlined"
                 onClick={handlePrevious}

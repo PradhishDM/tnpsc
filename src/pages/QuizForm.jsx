@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 // Create a custom theme
 const theme = createTheme({
@@ -78,6 +79,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const QuizForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     contactNo: "",
@@ -101,6 +103,7 @@ const QuizForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    navigate("/questions");
     console.log("Form Data Submitted:", formData);
   };
 
@@ -159,7 +162,6 @@ const QuizForm = () => {
                         value={formData[field]}
                         onChange={handleChange}
                         variant="outlined"
-                        required
                         type={
                           field.includes("No")
                             ? "tel"
